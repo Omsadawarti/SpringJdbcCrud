@@ -46,6 +46,8 @@ public class LoginFrame extends javax.swing.JFrame {
      */
     public LoginFrame() {
         initComponents();
+        userNameTextField.setText("om sadawarti");
+        passTextField.setText("1111");
       
     }
 

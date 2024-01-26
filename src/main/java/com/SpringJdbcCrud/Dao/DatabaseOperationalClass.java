@@ -25,21 +25,31 @@ public class DatabaseOperationalClass
     public int switchh = 0; //0 = users, 1 = employee
    
     public int insert(Employee emp) {
-//        String query = "insert into employees (name,email,age,phone,status) values(?,?,?,?,?)";
-//        int result = jdbcTemplate.update(query,emp)
+        
+        String query = "insert into employees(name,email,age,phone,city,status) values(?,?,?,?,?,?)";
+        this.jdbcTemplate.update(query,emp.getName(),emp.getEmail(),emp.getAge(),emp.getPhone(),emp.getCity(),emp.getStatus());
+
 return 0;
     }
 
     public int delete(int empId) {
-       
+       String query = "update employees set status = 0 where id = ?";
+       this.jdbcTemplate.update(query,empId);
         
         return 0;
+    }
+    
+    public int update(Employee employee) {
+    	String query = "update employees set name = ? , email = ? , phone = ? , age = ? , city = ? where id = ? and status = 1 ";
+    	
+    	this.jdbcTemplate.update(query,employee.getName(),employee.getEmail() , employee.getPhone(),employee.getAge() , employee.getCity() , employee.getId() );
+    	return 0 ; 
     }
 
     @Override
 	public List<Object> getUserList() {
     	switchh = 0 ;
-		String query = "select * from users";
+		String query = "select * from users where status = 1";
                  List<Object> userList;
 		if(this.jdbcTemplate != null) {
 			userList = this.jdbcTemplate.query(query, this);
@@ -54,7 +64,7 @@ return 0;
     public List<Object> getEmployeeList() {
 	 switchh = 1 ;
         List<Object> employeeList;
-        String query = "select * from employees";
+        String query = "select * from employees where status = 1";
 		if(this.jdbcTemplate != null) {
 			employeeList = this.jdbcTemplate.query(query, this);
 			return employeeList;

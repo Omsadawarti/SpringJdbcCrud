@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.SpringJdbcCrud.Dao.DatabaseOperationalClass;
 import com.SpringJdbcCrud.Entity.Employee;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -26,6 +27,7 @@ public class EmployeeFrame extends javax.swing.JFrame {
 	@Autowired
 	@Qualifier("dbOb")
 	DatabaseOperationalClass dbob;
+	private int id = 0;
 
     /**
      * Creates new form EmployeeFrame
@@ -57,6 +59,9 @@ public class EmployeeFrame extends javax.swing.JFrame {
         jPanel7 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         phoneTextField = new javax.swing.JTextField();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        cityTextField = new javax.swing.JTextField();
         jPanel8 = new javax.swing.JPanel();
         insertButton = new javax.swing.JButton();
         updateButton = new javax.swing.JButton();
@@ -71,7 +76,7 @@ public class EmployeeFrame extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.GridLayout(2, 0, 0, 10));
 
-        jPanel2.setLayout(new java.awt.GridLayout(5, 1, 10, 10));
+        jPanel2.setLayout(new java.awt.GridLayout(6, 1, 10, 10));
 
         jPanel4.setLayout(new java.awt.GridLayout(1, 2, 10, 10));
 
@@ -109,22 +114,51 @@ public class EmployeeFrame extends javax.swing.JFrame {
 
         jPanel2.add(jPanel7);
 
+        jPanel9.setLayout(new java.awt.GridLayout(1, 2, 10, 10));
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel5.setText("CITY");
+        jPanel9.add(jLabel5);
+        jPanel9.add(cityTextField);
+
+        jPanel2.add(jPanel9);
+
         jPanel8.setLayout(new java.awt.GridLayout(1, 4, 10, 10));
 
         insertButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         insertButton.setText("INSERT");
+        insertButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertButtonActionPerformed(evt);
+            }
+        });
         jPanel8.add(insertButton);
 
         updateButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         updateButton.setText("UPDATE");
+        updateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateButtonActionPerformed(evt);
+            }
+        });
         jPanel8.add(updateButton);
 
         deleteButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         deleteButton.setText("DELETE");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
         jPanel8.add(deleteButton);
 
         resetButton.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         resetButton.setText("RESET");
+        resetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetButtonActionPerformed(evt);
+            }
+        });
         jPanel8.add(resetButton);
 
         jPanel2.add(jPanel8);
@@ -144,6 +178,11 @@ public class EmployeeFrame extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        employeeTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                employeeTableMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(employeeTable);
 
         jPanel3.add(jScrollPane1);
@@ -155,6 +194,103 @@ public class EmployeeFrame extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void employeeTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_employeeTableMouseClicked
+        // TODO add your handling code here:
+        
+         id = Integer.parseInt(employeeTable.getValueAt(employeeTable.getSelectedRow(), 0).toString());
+        ArrayList<Employee> empList = new ArrayList();
+        empList = dbob.typeCastToEmployee(dbob.getEmployeeList());
+        Employee emp = empList.stream().filter(p->p.getId() == id).findAny().orElse(null);
+        nameTextField.setText(emp.getName());
+        emailTextField.setText(emp.getEmail());
+        phoneTextField.setText(emp.getPhone()+"");
+        ageTextField.setText(emp.getAge()+"");
+        cityTextField.setText(emp.getCity());
+        
+        
+    }//GEN-LAST:event_employeeTableMouseClicked
+
+    private void insertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertButtonActionPerformed
+        // TODO add your handling code here:
+        String name = nameTextField.getText().toUpperCase();
+        String email = emailTextField.getText();
+        String age = ageTextField.getText();
+        String phone = phoneTextField.getText();
+        String city = cityTextField.getText().toUpperCase();
+        if(name.isEmpty() || email.isEmpty() || age.isEmpty() || phone.isEmpty() || city.isEmpty())
+        {
+            JOptionPane.showMessageDialog(this, "Invalid Data, all the fields must be filled" , "Person CRUD", JOptionPane.ERROR_MESSAGE);
+            resetData();
+            
+        }
+        else{
+            Employee emp = new Employee();
+           emp.setName(name);
+           emp.setEmail(email);
+           emp.setAge(Integer.parseInt(age));
+           emp.setPhone(Long.parseLong(phone));
+           emp.setCity(city);
+           emp.setStatus(1);
+           dbob.insert(emp);
+           JOptionPane.showMessageDialog(this, "Record Inserted Succesfully!!","Person CRUD",JOptionPane.INFORMATION_MESSAGE);
+           setTableData();
+           resetData();
+        }
+    }//GEN-LAST:event_insertButtonActionPerformed
+
+    private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
+        // TODO add your handling code here:
+        String name = nameTextField.getText().toUpperCase();
+        String email = emailTextField.getText();
+        String age = ageTextField.getText();
+        String phone = phoneTextField.getText();
+        String city = cityTextField.getText().toUpperCase();
+        
+        if(!(name.isEmpty() || email.isEmpty() || age.isEmpty() || phone.isEmpty() || city.isEmpty()))
+        {
+        	Employee employee = new Employee();
+        	employee.setId(id);
+        	employee.setName(name);
+        	employee.setEmail(email);
+        	employee.setAge(Integer.parseInt(age));
+        	employee.setPhone(Long.parseLong(phone));
+        	employee.setCity(city);
+        	
+        	dbob.update(employee);
+        	JOptionPane.showMessageDialog(this, "Data updated Succesfully!!" , "Person CRUD" ,JOptionPane.INFORMATION_MESSAGE);
+        	setTableData();
+        	resetData();
+        	
+        	
+        }
+        else
+            JOptionPane.showMessageDialog(this, "Please select record to update" ,"Person CRUD" , JOptionPane.ERROR_MESSAGE);
+    }//GEN-LAST:event_updateButtonActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        // TODO add your handling code here:
+         String name = nameTextField.getText().toUpperCase();
+        String email = emailTextField.getText();
+        String age = ageTextField.getText();
+        String phone = phoneTextField.getText();
+        String city = cityTextField.getText().toUpperCase();
+        
+        if(!(name.isEmpty() || email.isEmpty() || age.isEmpty() || phone.isEmpty() || city.isEmpty()))
+        {
+            dbob.delete(id);
+            JOptionPane.showMessageDialog(this, "Data Deleted Succesfully!!" , "Person CRUD" ,JOptionPane.INFORMATION_MESSAGE);
+            setTableData();
+        	resetData();
+            
+        }else
+            JOptionPane.showMessageDialog(this, "Please select record to Delete" ,"Person CRUD" , JOptionPane.ERROR_MESSAGE);
+    }//GEN-LAST:event_deleteButtonActionPerformed
+
+    private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
+        // TODO add your handling code here:
+        resetData();
+    }//GEN-LAST:event_resetButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -193,6 +329,7 @@ public class EmployeeFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField ageTextField;
+    private javax.swing.JTextField cityTextField;
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField emailTextField;
     private javax.swing.JTable employeeTable;
@@ -201,6 +338,7 @@ public class EmployeeFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -209,6 +347,7 @@ public class EmployeeFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JTextField phoneTextField;
@@ -236,6 +375,14 @@ public class EmployeeFrame extends javax.swing.JFrame {
         DefaultTableModel model = new DefaultTableModel(data,cols);
         employeeTable.setModel(model);
         
+    }
+    
+    public void resetData(){
+        nameTextField.setText("");
+        ageTextField.setText("");
+        phoneTextField.setText("");
+        cityTextField.setText("");
+        emailTextField.setText("");
     }
 
 }
